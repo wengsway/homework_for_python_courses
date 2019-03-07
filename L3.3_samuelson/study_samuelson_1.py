@@ -74,5 +74,6 @@ def param_plot():
 
     return fig
 
+
 param_plot()
 plt.show()

@@ -12,6 +12,7 @@ import math
 import cmath
 
 
+# Part 1: Function to describe implications of characteristic polynomial
 def categorize_solution(ρ1, ρ2):
     """this function takes values of ρ1 and ρ2 and uses them to classify the type of solution"""
 
@@ -27,6 +28,8 @@ def categorize_solution(ρ1, ρ2):
               'state')
 
 
+# Part 2: Function for plotting  𝑌𝑡  paths
+# "plot_y" can plot what we  passed arguments - any function
 def plot_y(function=None):
     """function plots path of Y_t"""
     plt.subplots(figsize=(10, 6))
@@ -37,62 +40,8 @@ def plot_y(function=None):
     plt.show()
 
 
-# === This is a 'manual' method ===
-
-
-def y_nonstochastic(y_0=100, y_1=80, α=.92, β=.5, γ=10, n=80):
-
-    """Takes values of parameters and computes roots of characteristic polynomial.
-       It tells whether they are real or complex and whether they are less than unity in absolute value.
-       It also computes a simulation of length n starting from the two given initial conditions for national income"""
-
-    roots = []
-
-    ρ1 = α + β
-    ρ2 = -β
-
-    print(f'ρ_1 is {ρ1}')
-    print(f'ρ_2 is {ρ2}')
-
-    discriminant = ρ1 ** 2 + 4 * ρ2
-
-    if discriminant == 0:
-        roots.append(-ρ1 / 2)
-        print('Single real root: ')
-        print(''.join(str(roots)))
-    elif discriminant > 0:
-        roots.append((-ρ1 + sqrt(discriminant).real) / 2)
-        roots.append((-ρ1 - sqrt(discriminant).real) / 2)
-        print('Two real roots: ')
-        print(''.join(str(roots)))
-    else:
-        roots.append((-ρ1 + sqrt(discriminant)) / 2)
-        roots.append((-ρ1 - sqrt(discriminant)) / 2)
-        print('Two complex roots: ')
-        print(''.join(str(roots)))
-
-    if all(abs(root) < 1 for root in roots):
-        print('Absolute values of roots are less than one')
-    else:
-        print('Absolute values of roots are not less than one')
-
-    def transition(x, t): return ρ1 * x[t - 1] + ρ2 * x[t - 2] + γ
-
-    y_t = [y_0, y_1]
-
-    for t in range(2, n):
-        y_t.append(transition(y_t, t))
-
-    return y_t
-
-
-plot_y(y_nonstochastic())
-
-# === This method uses numpy to calculate roots ===
-
-
+# Part 3: Uses numpy to calculate roots under conditions:nonstochastic
 def y_nonstochastic(y_0=100, y_1=80, α=.9, β=.8, γ=10, n=80):
-
     """ Rather than computing the roots of the characteristic polynomial by hand as we did earlier, this function
     enlists numpy to do the work for us """
 
@@ -119,7 +68,8 @@ def y_nonstochastic(y_0=100, y_1=80, α=.9, β=.8, γ=10, n=80):
         print('Roots are not less than one')
 
     # Define transition equation
-    def transition(x, t): return ρ1 * x[t - 1] + ρ2 * x[t - 2] + γ
+    def transition(x, t):
+        return ρ1 * x[t - 1] + ρ2 * x[t - 2] + γ
 
     # Set initial conditions
     y_t = [y_0, y_1]
@@ -132,6 +82,13 @@ def y_nonstochastic(y_0=100, y_1=80, α=.9, β=.8, γ=10, n=80):
 
 
 plot_y(y_nonstochastic())
+print("\n")
+
+# Part 4: code to reverse engineer a  cycle
+# y_t = r^t (c_1 cos(ϕ t) + c2 sin(ϕ t))
+# 给定极坐标系下的半径r和角度ϕ，计算出笛卡尔坐标系下的ρ1, ρ2, a, b
+
+import cmath
 
 
 def f(r, ϕ):
@@ -152,39 +109,8 @@ def f(r, ϕ):
     return ρ1, ρ2, a, b
 
 
-# Now let's use the function in an example
-# Here are the example paramters
-
-r = .95
-period = 10  # Length of cycle in units of time
-ϕ = 2 * math.pi / period
-
-# Apply the function
-
-ρ1, ρ2, a, b = f(r, ϕ)
-
-print(f"a, b = {a}, {b}")
-print(f"ρ1, ρ2 = {ρ1}, {ρ2}")
-
-
-# Reverse engineered complex roots
-# generates undamped, nonexplosive cycles
-r = 1
-#  length of cycle in units of time
-period = 10
-ϕ = 2 * math.pi/period
-# Apply the reverse engineering function f
-ρ1, ρ2, a, b = f(r, ϕ)
-a = a.real  # drop the imaginary part so that it is a valid input into y_nonstochastic
-b = b.real
-print(f"a, b = {a}, {b}")
-ytemp = y_nonstochastic(α=a, β=b, y_0=20, y_1=30)
-plot_y(ytemp)
-
-
-# Stochastic shocks
+# Part 5: Under conditons:stochastic
 def y_stochastic(y_0=0, y_1=0, α=0.8, β=0.2, γ=10, n=100, σ=5):
-
     """This function takes parameters of a stochastic version of the model and proceeds to analyze
     the roots of the characteristic polynomial and also generate a simulation"""
 
@@ -215,8 +141,9 @@ def y_stochastic(y_0=0, y_1=0, α=0.8, β=0.2, γ=10, n=100, σ=5):
     ϵ = np.random.normal(0, 1, n)
 
     # Define transition equation
-    def transition(x, t): return ρ1 * \
-        x[t - 1] + ρ2 * x[t - 2] + γ + σ * ϵ[t]
+    def transition(x, t):
+        return ρ1 * \
+               x[t - 1] + ρ2 * x[t - 2] + γ + σ * ϵ[t]
 
     # Set initial conditions
     y_t = [y_0, y_1]
@@ -229,24 +156,23 @@ def y_stochastic(y_0=0, y_1=0, α=0.8, β=0.2, γ=10, n=100, σ=5):
 
 
 plot_y(y_stochastic())
+print("\n")
 
-# Another part
+# Part 6: Let’s do a simulation in which there are shocks and the characteristic polynomial has complex roots
+
 r = .97
 #  length of cycle in units of time
 period = 10
-ϕ = 2 * math.pi/period
-
+ϕ = 2 * math.pi / period
 # apply the  reverse engineering function f
-
 ρ1, ρ2, a, b = f(r, ϕ)
-# drop the imaginary part so that it is a valid input into y_nonstochastic
-a = a.real
+a = a.real  # drop the imaginary part so that it is a valid input into y_nonstochastic
 b = b.real
-
 print(f"a, b = {a}, {b}")
-plot_y(y_stochastic(y_0=40, y_1 = 42, α=a, β=b, σ=2, n=100))
+plot_y(y_stochastic(y_0=40, y_1=42, α=a, β=b, σ=2, n=100))
 
-# Government spending
+
+# Part 7: computes a response to either a permanent or one-off increase in government expenditures
 def y_stochastic_g(y_0=20,
                    y_1=20,
                    α=0.8,
@@ -257,7 +183,6 @@ def y_stochastic_g(y_0=20,
                    g=0,
                    g_t=0,
                    duration='permanent'):
-
     """This program computes a response to a permanent increase in government expenditures that occurs
        at time 20"""
 
@@ -329,4 +254,6 @@ def y_stochastic_g(y_0=20,
 
 
 plot_y(y_stochastic_g(g=10, g_t=20, duration='permanent'))
+print("\n")
 plot_y(y_stochastic_g(g=500, g_t=50, duration='one-off'))
+print("\n")
