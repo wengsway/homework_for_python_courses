@@ -2,7 +2,7 @@
 # -*- coding:utf-8 _*-  
 # Author: Wengs
 # Time  : 3/6/2019 3:55 PM 
-# File  : exercise_1.py 
+# File  : Exercise_1.py
 # IDE   : PyCharm
 
 from random import uniform
